@@ -1,0 +1,11 @@
+# markdown files
+IMPLEMENTATION_COMPLETE.md
+ML_ENGINEER.md
+QUICK_REFERENCE.md
+backend/README.md
+
+# virtual environment
+venv/
+
+# output logs
+backend/logs/

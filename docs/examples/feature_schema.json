@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TowerGuard Feature Vector Schema",
+  "description": "Defines the structure, types, units, and valid ranges for environmental feature vectors used in health score computation.",
+  "type": "object",
+  "properties": {
+    "site_id": {
+      "type": "string",
+      "description": "Unique identifier for the water tower site (e.g., 'mau', 'aberdare', 'mt_elgon')"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when features were extracted"
+    },
+    "features": {
+      "type": "object",
+      "description": "Environmental features used for health scoring",
+      "properties": {
+        "ndvi_mean": {
+          "type": ["number", "null"],
+          "minimum": -1.0,
+          "maximum": 1.0,
+          "description": "Mean NDVI (Normalized Difference Vegetation Index) over the site polygon. Units: unitless (-1 to 1). NULL if computation failed."
+        },
+        "ndvi_std": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Standard deviation of NDVI values. Units: unitless (0 to 1). NULL if computation failed."
+        },
+        "ndvi_valid_pixel_ratio": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Ratio of valid (non-cloud, non-nodata) pixels to total pixels in clipped region. Units: proportion (0 to 1). NULL if computation failed."
+        },
+        "rainfall_mm": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "description": "Annual or seasonal rainfall. Units: millimeters (mm). NULL if data unavailable."
+        },
+        "temp_mean_c": {
+          "type": ["number", "null"],
+          "minimum": -50.0,
+          "maximum": 50.0,
+          "description": "Mean annual temperature. Units: degrees Celsius (°C). NULL if data unavailable."
+        },
+        "elevation_m": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 5895.0,
+          "description": "Digital elevation model value at site center or mean elevation over polygon. Units: meters (m). NULL if data unavailable."
+        }
+      },
+      "required": ["ndvi_mean", "ndvi_std", "rainfall_mm", "temp_mean_c", "elevation_m"]
+    },
+    "feature_vector": {
+      "type": "array",
+      "description": "Ordered numerical vector: [ndvi_mean, ndvi_std, rainfall_mm, temp_mean_c, elevation_m]. NaNs used for missing values.",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 5,
+      "maxItems": 5
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Provenance and processing metadata",
+      "properties": {
+        "sentinel2_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Date of Sentinel-2 acquisition (YYYY-MM-DD)"
+        },
+        "sentinel2_cloud_percentage": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Cloud cover percentage in the Sentinel-2 tile"
+        },
+        "data_sources": {
+          "type": "object",
+          "description": "Sources for each feature type",
+          "properties": {
+            "ndvi": {
+              "type": "string",
+              "description": "Source for NDVI data (e.g., 'Sentinel-2', 'Landsat')"
+            },
+            "rainfall": {
+              "type": "string",
+              "description": "Source for rainfall data (e.g., 'CHIRPS', 'NOAA', 'local')"
+            },
+            "temperature": {
+              "type": "string",
+              "description": "Source for temperature data (e.g., 'WorldClim', 'NOAA', 'local')"
+            },
+            "elevation": {
+              "type": "string",
+              "description": "Source for elevation data (e.g., 'SRTM', 'ASTER')"
+            }
+          }
+        },
+        "processing_notes": {
+          "type": ["string", "null"],
+          "description": "Any processing notes, warnings, or data quality flags"
+        }
+      }
+    }
+  },
+  "required": ["site_id", "timestamp", "features", "feature_vector", "metadata"],
+  "additionalProperties": false
+}
