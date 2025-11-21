@@ -1,3 +1,0 @@
-CHIRPS fixture placeholder.
-
-Download a real CHIRPS NetCDF subset (Kenya, daily) and save it here as 'chirps_sample.nc'. Do not use synthetic data.
