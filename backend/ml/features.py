@@ -18,6 +18,13 @@ import numpy as np
 
 from .ndvi import compute_ndvi_for_site
 from .utils import logger, create_feature_metadata, build_feature_vector_from_site_features
+from .environmental_api_client import (
+    get_api_client,
+    CHIRPSClient,
+    NASAPOWERClient,
+    SoilGridsClient
+)
+from .data_loader import load_water_towers
 
 
 # ==============================================================================
@@ -56,37 +63,49 @@ def get_rainfall_for_site(
     site_id: str,
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
-    data_source: str = 'local'
+    data_source: str = 'chirps'
 ) -> Optional[float]:
     """
     Retrieve annual/seasonal rainfall for a site.
     
-    Data sources could include:
-    - 'local': Local GeoTIFF or database
+    Data sources:
     - 'chirps': Climate Hazards Group InfraRed Precipitation with Station data
-    - 'noaa': NOAA precipitation data
-    - 'worldclim': WorldClim precipitation climatology
+    - 'nasa_power': NASA POWER climate data API
+    - 'open_meteo': Open-Meteo weather API (backup)
     
     Args:
         site_id: Site identifier
-        latitude: Site latitude (optional)
-        longitude: Site longitude (optional)
-        data_source: Data source name (default: 'local')
+        latitude: Site latitude (required for API calls)
+        longitude: Site longitude (required for API calls)
+        data_source: Data source name (default: 'chirps')
     
     Returns:
         Rainfall in mm or None if unavailable
     """
     try:
-        logger.debug(f"[{site_id}] Attempting to retrieve rainfall from source: {data_source}")
+        logger.debug(f"[{site_id}] Retrieving rainfall from source: {data_source}")
         
-        # Stub: Return None indicating data not available
-        # In production, implement actual data fetching:
-        # - Query local GeoTIFF at (lat, lon)
-        # - Query API (CHIRPS, NOAA, WorldClim)
-        # - Query database
+        if latitude is None or longitude is None:
+            logger.warning(f"[{site_id}] Missing latitude/longitude for rainfall lookup")
+            return None
         
-        logger.warning(f"[{site_id}] Rainfall data not available from source: {data_source}")
-        return None
+        if data_source == 'chirps':
+            chirps = CHIRPSClient()
+            rainfall = chirps.get_rainfall_for_location(latitude, longitude)
+            if rainfall is not None:
+                logger.info(f"[{site_id}] Rainfall (CHIRPS): {rainfall:.1f} mm")
+            return rainfall
+        
+        elif data_source == 'nasa_power':
+            nasa = NASAPOWERClient()
+            rainfall = nasa.get_rainfall_climatology(latitude, longitude)
+            if rainfall is not None:
+                logger.info(f"[{site_id}] Rainfall (NASA POWER): {rainfall:.1f} mm")
+            return rainfall
+        
+        else:
+            logger.warning(f"[{site_id}] Unknown rainfall data source: {data_source}")
+            return None
     
     except Exception as e:
         logger.error(f"[{site_id}] Failed to retrieve rainfall: {e}")
@@ -97,34 +116,52 @@ def get_temperature_for_site(
     site_id: str,
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
-    data_source: str = 'local'
+    data_source: str = 'nasa_power'
 ) -> Optional[float]:
     """
     Retrieve mean annual temperature for a site.
     
-    Data sources could include:
-    - 'local': Local GeoTIFF or database
-    - 'worldclim': WorldClim temperature climatology
-    - 'noaa': NOAA temperature data
-    - 'modis': MODIS LST (Land Surface Temperature)
+    Data sources:
+    - 'nasa_power': NASA POWER climate data API
+    - 'open_meteo': Open-Meteo free weather API
     
     Args:
         site_id: Site identifier
-        latitude: Site latitude (optional)
-        longitude: Site longitude (optional)
-        data_source: Data source name (default: 'local')
+        latitude: Site latitude (required for API calls)
+        longitude: Site longitude (required for API calls)
+        data_source: Data source name (default: 'nasa_power')
     
     Returns:
         Mean temperature in °C or None if unavailable
     """
     try:
-        logger.debug(f"[{site_id}] Attempting to retrieve temperature from source: {data_source}")
+        logger.debug(f"[{site_id}] Retrieving temperature from source: {data_source}")
         
-        # Stub: Return None indicating data not available
-        # In production, implement actual data fetching
+        if latitude is None or longitude is None:
+            logger.warning(f"[{site_id}] Missing latitude/longitude for temperature lookup")
+            return None
         
-        logger.warning(f"[{site_id}] Temperature data not available from source: {data_source}")
-        return None
+        if data_source == 'nasa_power':
+            nasa = NASAPOWERClient()
+            temp_tuple = nasa.get_temperature_climatology(latitude, longitude)
+            if temp_tuple:
+                mean_c = temp_tuple[0]
+                logger.info(f"[{site_id}] Temperature (NASA POWER): {mean_c:.1f}°C")
+                return mean_c
+            return None
+        
+        elif data_source == 'open_meteo':
+            open_meteo_client = get_api_client('open_meteo')
+            if open_meteo_client:
+                temp = open_meteo_client.get_temperature_current(latitude, longitude)
+                if temp is not None:
+                    logger.info(f"[{site_id}] Temperature (Open-Meteo): {temp:.1f}°C")
+                return temp
+            return None
+        
+        else:
+            logger.warning(f"[{site_id}] Unknown temperature data source: {data_source}")
+            return None
     
     except Exception as e:
         logger.error(f"[{site_id}] Failed to retrieve temperature: {e}")
@@ -136,38 +173,77 @@ def get_elevation_for_site(
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
     dem_path: Optional[str] = None,
-    data_source: str = 'local'
+    data_source: str = 'water_towers_geojson'
 ) -> Optional[float]:
     """
     Retrieve elevation for a site.
     
-    Data sources could include:
-    - 'local': Local DEM GeoTIFF file
-    - 'srtm': SRTM 30m DEM
-    - 'aster': ASTER GDEM 30m DEM
-    - 'gebco': GEBCO bathymetry/elevation
+    Data sources:
+    - 'water_towers_geojson': Elevation from water_towers.geojson properties
+    - 'soilgrids': ISRIC SoilGrids DEM (optional, TIER 2)
     
     Args:
-        site_id: Site identifier
-        latitude: Site latitude (optional)
-        longitude: Site longitude (optional)
+        site_id: Site identifier or water tower name
+        latitude: Site latitude (for SoilGrids fallback)
+        longitude: Site longitude (for SoilGrids fallback)
         dem_path: Path to local DEM GeoTIFF (optional)
-        data_source: Data source name (default: 'local')
+        data_source: Data source name (default: 'water_towers_geojson')
     
     Returns:
         Elevation in meters or None if unavailable
     """
     try:
-        logger.debug(f"[{site_id}] Attempting to retrieve elevation from source: {data_source}")
+        logger.debug(f"[{site_id}] Retrieving elevation from source: {data_source}")
         
-        # Stub: Return None indicating data not available
-        # In production:
-        # - If dem_path provided, load GeoTIFF and sample at (lat, lon)
-        # - Query remote DEM service (SRTM, ASTER, GEBCO)
-        # - Query database
+        if data_source == 'water_towers_geojson':
+            # Load water towers GeoDataFrame
+            water_towers = load_water_towers()
+            if water_towers is None:
+                logger.warning(f"[{site_id}] Could not load water towers GeoJSON")
+                return None
+            
+            # Try to find site by name or id
+            match = None
+            if 'name' in water_towers.columns:
+                match = water_towers[water_towers['name'] == site_id]
+            if match is None or match.empty:
+                if 'id' in water_towers.columns:
+                    match = water_towers[water_towers['id'] == site_id]
+            
+            if match is not None and not match.empty:
+                # Try to get elevation from properties
+                if 'elevation' in match.columns or 'elevation_m' in match.columns:
+                    elev_col = 'elevation' if 'elevation' in match.columns else 'elevation_m'
+                    elevation = match.iloc[0][elev_col]
+                    if elevation is not None:
+                        logger.info(f"[{site_id}] Elevation (water_towers): {elevation:.0f} m")
+                        return float(elevation)
+                
+                # Try to extract elevation from geometry (z-coordinate if 3D)
+                geom = match.iloc[0].geometry
+                if geom and hasattr(geom, 'z'):
+                    elevation = geom.z
+                    logger.info(f"[{site_id}] Elevation (geometry z): {elevation:.0f} m")
+                    return float(elevation)
+            
+            logger.warning(f"[{site_id}] Site not found in water towers GeoJSON")
+            return None
         
-        logger.warning(f"[{site_id}] Elevation data not available from source: {data_source}")
-        return None
+        elif data_source == 'soilgrids':
+            if latitude is None or longitude is None:
+                logger.warning(f"[{site_id}] Missing latitude/longitude for SoilGrids")
+                return None
+            
+            soilgrids = SoilGridsClient()
+            props = soilgrids.get_soil_properties(latitude, longitude)
+            if props:
+                logger.info(f"[{site_id}] Elevation query via SoilGrids")
+                return props.get('elevation', None)
+            return None
+        
+        else:
+            logger.warning(f"[{site_id}] Unknown elevation data source: {data_source}")
+            return None
     
     except Exception as e:
         logger.error(f"[{site_id}] Failed to retrieve elevation: {e}")
@@ -186,9 +262,9 @@ def extract_features_for_site(
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
     dem_path: Optional[str] = None,
-    rainfall_source: str = 'local',
-    temperature_source: str = 'local',
-    elevation_source: str = 'local',
+    rainfall_source: str = 'chirps',
+    temperature_source: str = 'nasa_power',
+    elevation_source: str = 'water_towers_geojson',
     sentinel2_date: Optional[str] = None,
     sentinel2_cloud_percentage: Optional[float] = None
 ) -> Tuple[SiteFeatures, Dict[str, Any]]:
@@ -197,23 +273,23 @@ def extract_features_for_site(
     
     Gathers features from multiple sources with robust error handling:
     - NDVI: Computed from Sentinel-2 if Red/NIR bands and polygon provided
-    - Rainfall: Retrieved from specified data source
-    - Temperature: Retrieved from specified data source
-    - Elevation: Retrieved from specified data source or DEM
+    - Rainfall: Retrieved from CHIRPS (primary), NASA POWER (backup)
+    - Temperature: Retrieved from NASA POWER (primary), Open-Meteo (backup)
+    - Elevation: Retrieved from water_towers.geojson properties
     
     Per specification: No synthetic defaults; on failure, log + set None.
     
     Args:
-        site_id: Unique site identifier
+        site_id: Unique site identifier (water tower name or ID)
         red_band_path: Path to Sentinel-2 Red band (B04) GeoTIFF (optional)
         nir_band_path: Path to Sentinel-2 NIR band (B08) GeoTIFF (optional)
         polygon_wkt: Site boundary as WKT polygon (optional, required for NDVI)
         latitude: Site latitude (optional, for climate data lookup)
         longitude: Site longitude (optional, for climate data lookup)
         dem_path: Path to DEM GeoTIFF for elevation (optional)
-        rainfall_source: Data source for rainfall ('local', 'chirps', 'noaa', 'worldclim')
-        temperature_source: Data source for temperature ('local', 'worldclim', 'noaa')
-        elevation_source: Data source for elevation ('local', 'srtm', 'aster', 'gebco')
+        rainfall_source: Data source for rainfall ('chirps' or 'nasa_power', default: 'chirps')
+        temperature_source: Data source for temperature ('nasa_power' or 'open_meteo', default: 'nasa_power')
+        elevation_source: Data source for elevation ('water_towers_geojson' or 'soilgrids', default: 'water_towers_geojson')
         sentinel2_date: Date of Sentinel-2 acquisition for metadata (optional)
         sentinel2_cloud_percentage: Cloud cover percentage for metadata (optional)
     

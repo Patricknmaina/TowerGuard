@@ -301,3 +301,81 @@ FEATURE_RANGES = {
     'temp_mean_c': (-50.0, 50.0),
     'elevation_m': (0.0, 5895.0)
 }
+
+# ==============================================================================
+# Geospatial Validation (CRS, Bounds)
+# ==============================================================================
+
+def validate_crs(crs_string: str, expected_crs: str = "EPSG:4326") -> bool:
+    """
+    Validate that a CRS string matches expected coordinate reference system.
+    
+    Args:
+        crs_string: CRS string to validate (e.g., "EPSG:4326", "WGS84")
+        expected_crs: Expected CRS (default: "EPSG:4326")
+    
+    Returns:
+        True if CRS is valid/matches, False otherwise
+    """
+    try:
+        # Normalize CRS strings for comparison
+        crs_lower = crs_string.lower()
+        expected_lower = expected_crs.lower()
+        
+        # Handle common variations
+        epsg4326_variants = ['epsg:4326', 'wgs84', 'wgs 84', 'urn:ogc:def:crs:epsg:4326']
+        
+        if expected_lower == 'epsg:4326':
+            return crs_lower in epsg4326_variants
+        
+        return crs_lower == expected_lower
+    
+    except Exception as e:
+        logger.warning(f"CRS validation error: {e}")
+        return False
+
+
+def validate_kenya_bounds(
+    latitude: Optional[float],
+    longitude: Optional[float],
+    min_lat: float = -5.0,
+    max_lat: float = 5.0,
+    min_lon: float = 33.0,
+    max_lon: float = 42.0
+) -> bool:
+    """
+    Validate that coordinates fall within Kenya geographic bounds.
+    
+    Args:
+        latitude: Latitude value to validate
+        longitude: Longitude value to validate
+        min_lat: Minimum latitude (default: -5.0)
+        max_lat: Maximum latitude (default: 5.0)
+        min_lon: Minimum longitude (default: 33.0)
+        max_lon: Maximum longitude (default: 42.0)
+    
+    Returns:
+        True if coordinates within bounds, False otherwise
+    """
+    try:
+        if latitude is None or longitude is None:
+            logger.warning("Cannot validate bounds: missing latitude or longitude")
+            return False
+        
+        within_bounds = (
+            min_lat <= latitude <= max_lat and
+            min_lon <= longitude <= max_lon
+        )
+        
+        if not within_bounds:
+            logger.warning(
+                f"Coordinates out of Kenya bounds: "
+                f"lat={latitude:.4f} (expected [{min_lat}, {max_lat}]), "
+                f"lon={longitude:.4f} (expected [{min_lon}, {max_lon}])"
+            )
+        
+        return within_bounds
+    
+    except Exception as e:
+        logger.error(f"Bounds validation error: {e}")
+        return False
