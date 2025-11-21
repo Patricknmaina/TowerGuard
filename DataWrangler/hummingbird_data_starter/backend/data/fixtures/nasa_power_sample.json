@@ -1,3 +1,17 @@
 {
-  "TODO": "Replace this file with a real NASA POWER API sample JSON for a site within a Kenya water tower."
+  "latitude": -0.523,
+  "longitude": 35.729,
+  "start_date": "2023-01-01",
+  "end_date": "2023-01-10",
+  "daily": [
+    { "date": "2023-01-01", "tmin_c": 9.8, "tmax_c": 23.5, "solar_radiation": 18.3 },
+    { "date": "2023-01-02", "tmin_c": 10.1, "tmax_c": 24.0, "solar_radiation": 19.0 },
+    { "date": "2023-01-03", "tmin_c": 9.9, "tmax_c": 23.8, "solar_radiation": 17.5 }
+  ],
+  "aggregated": {
+    "tmin_c_mean": 10.0,
+    "tmax_c_mean": 23.8,
+    "solar_radiation_mean": 18.3
+  },
+  "source": "fixture-dev-only"
 }

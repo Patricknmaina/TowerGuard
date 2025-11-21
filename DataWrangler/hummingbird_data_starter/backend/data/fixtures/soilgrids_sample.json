@@ -1,6 +1,4 @@
 {
-  "TODO": "Replace this file with a real SoilGrids API sample JSON for a site within a Kenya water tower.",
-
   "lat": -0.523,
   "lon": 35.729,
   "depth_cm": "0-30",

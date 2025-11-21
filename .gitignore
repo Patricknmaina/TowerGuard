@@ -1,0 +1,2 @@
+#  Ignore the sample CHIRPS NetCDF file used for testing
+/DataWrangler/hummingbird_data_starter/backend/data/fixtures/chirps_sample.nc

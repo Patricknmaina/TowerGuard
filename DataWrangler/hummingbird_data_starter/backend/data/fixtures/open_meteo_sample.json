@@ -1,3 +1,12 @@
 {
-  "TODO": "Replace this file with a real Open-Meteo API sample JSON for a site within a Kenya water tower."
+  "latitude": -0.523,
+  "longitude": 35.729,
+  "elevation": 2300,
+  "current": {
+    "time": "2023-01-01T12:00:00Z",
+    "temperature_2m": 18.4,
+    "precipitation": 0.2,
+    "wind_speed_10m": 3.5
+  },
+  "source": "fixture-dev-only"
 }
