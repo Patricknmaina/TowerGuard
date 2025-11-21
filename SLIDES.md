@@ -11,113 +11,72 @@ Use this Markdown with Marp, Slidesdown, or Deckset to generate the hackathon pr
 
 ---
 
-## 2. Challenge
+## 2. Problem & Market Need
 - Over 50,000 hectares of Kenyan forest lost annually while monitoring budgets shrink
-- Field audits are slow, subjective, and often siloed from donor dashboards
-- Communities need verifiable evidence to unlock climate finance and ESG deals
+- Monitoring spend averages under $3 per hectare, leaving roughly 70% of plots unverified each year
+- Counties, community groups, and financiers lack a shared system of record to unlock climate finance and ESG deals
+- Global restoration pledges (15B trees in Kenya alone) require verifiable metrics before billions in funding can flow
 
 ---
 
-## 3. Opportunity and Vision
-- Make every seedling measurable from nursery to canopy
-- Combine satellites, field apps, and AI into one automated M&E workflow
-- Deliver transparency that de-risks investments in landscape restoration
+## 3. Vision & Track Fit
+- Make every seedling measurable from nursery to canopy through automation
+- Combine satellites, field apps, and AI into one M&E workflow; deliver alerts within 24 hours
+- Align directly with Track 2 deliverables: survival tracking, dashboards, nursery mapping, biodiversity visualization, AI impact prediction
+- Provide trusted data for the first 250,000 hectares of the 15B tree pledge and beyond
 
 ---
 
-## 4. Track 2 Alignment
-- Tree survival tracking with continuous NDVI, rainfall, and soil signals
-- Interactive dashboards for stakeholders with shareable KPIs
-- Nursery mapping covering species, capacity, and logistics readiness
-- Biodiversity visualization layers plus annotation pipeline
-- AI-powered impact prediction for proactive interventions
+## 4. Users & Product Pillars
+- **Personas**: community forest associations, County/KFS regulators, CSR and carbon investors, nurseries & logistics partners
+- **Survival Intelligence**: anomaly detection refreshed every five days using 10 m Sentinel scenes
+- **M&E Control Room**: dashboards, reporting packs, exports with audit trails back to raw imagery
+- **Nursery Atlas**: species mix, capacity forecasts, procurement workflows covering 40+ nurseries
+- **Biodiversity Lens**: species richness and camera-trap integrations with 5,000+ annual observations
+- **AI Impact Studio**: scenario planning modeling five-year ecological and financial outcomes
 
 ---
 
-## 5. User Personas
-- Community forest associations: need alerts and training guidance
-- County governments and KFS: require verified reports for compliance
-- Impact investors and CSR teams: demand ROI plus co-benefit insights
-- Nurseries and logistics partners: seek reliable demand pipelines
+## 5. Technology & Data Flow
+- FastAPI microservices with Celery workers for 15-minute ingestion jobs
+- TorchGeo + PyTorch models process ~1 TB of raster data per year with explainability per hectare
+- PostgreSQL + PostGIS feature store; Redis queues 10,000+ daily events; React + MapLibre dashboards with 50+ KPI widgets
+- Pipeline: Sentinel/Landsat + rainfall/soil APIs ingested hourly → USSD/Kobo/LoRa field data (2,000+ observations/month) → feature store snapshots → scoring + alert engine (<10 s latency) → tamper-proof evidence locker for PDF/CSV exports
 
 ---
 
-## 6. Product Overview
-- Survival Intelligence: anomaly detection and mortality cohort analysis
-- M&E Control Room: multi-tenant dashboards, reporting packs, exports
-- Nursery Atlas: species mix, capacity forecasts, procurement workflows
-- Biodiversity Lens: species richness, camera-trap integrations
-- AI Impact Studio: scenario planning and cost-per-impact modeling
+## 6. Impact KPIs & Field Story
+- Survival percentage with confidence bands (goal: lift pilot sites from 55% to 75%)
+- 25,000 hectares monitored by 2026, reducing seedling shortages by 30%
+- Biodiversity index with 5% YoY increase in indicator species; 2,000 seasonal jobs per county documented
+- Pilot vignette: Nyeri Block 7 used TowerGuard alerts to replant within a week, improving expected survival from 48% to 71%
 
 ---
 
-## 7. Technology Stack
-- FastAPI microservices with Celery workers for ingestion jobs
-- TorchGeo plus PyTorch models for survival scoring and forecasting
-- PostgreSQL plus PostGIS feature store; Redis queues for events
-- React plus MapLibre front-end with deck.gl visualizations
-- Infrastructure as code for rapid deployment on Azure or AWS
+## 7. Business & Revenue Model
+- SaaS tiers: pilot $18K/year, enterprise $75K/year with gross margin >70%
+- Usage credits at $0.04 per data event; premium services (AI scenarios, audits, integrations) billed at $150/hour
+- Future marketplace: 5% facilitation fee on nursery supply/restoration services targeting $2M GMV by 2027
+- Path to $5M ARR by year three with diversified mix of subscription (65%), usage (20%), services/marketplace (15%)
 
 ---
 
-## 8. Data Pipeline
-1. Remote sensing (Sentinel, Landsat), rainfall, and soil APIs ingested hourly
-2. USSD, Kobo, and LoRa field inputs synced via edge gateways
-3. Feature engineering and explainability stored in PostGIS
-4. Model serving API streams scores to dashboards and alert engine
-5. Evidence locker exports PDF or CSV packs for donors and regulators
+## 8. Go-To-Market & Edge
+- Phase 1 pilots: Nyeri & Elgeyo-Marakwet covering 12,000 hectares via hackathon partners; 200 enumerators via KEFRI/KFS
+- Layer carbon developers/CSR teams for 10 paying tenants in year one; expand regionally once ARR > $1M
+- Competitive edge: offline-first workflows, transparent metrics + explainability, unified view across survival, nurseries, biodiversity, finance, and privileged data partnerships
 
 ---
 
-## 9. Impact Metrics
-- Tree survival percentage with confidence bands
-- Hectares restored and carbon sequestered estimates
-- Nursery utilization and fulfillment lead time
-- Biodiversity index plus species sightings
-- Jobs created and community engagements logged
+## 9. Traction & Roadmap
+- Hackathon sprint delivered prototype data model, dashboard wireframes, and 18 stakeholder interviews
+- Q1: ingest Sentinel scenes, deploy MVP dashboards, onboard 20 pilot nurseries
+- Q2: launch impact prediction studio and donor evidence packs covering 50,000 hectares
+- Q3: monetize via subscription tiers, integrate payments, expand to Rwanda with 3 paying counties
 
 ---
 
-## 10. Business Model
-- SaaS subscriptions for counties, NGOs, and carbon project developers
-- Usage-based credits for API calls, satellite scenes, and alerts
-- Premium services: AI scenario modeling, verification audits, integrations
-- Long-term: marketplace fees for nursery supply and restoration services
-
----
-
-## 11. Go-To-Market
-1. Pilot with two counties (Nyeri, Elgeyo-Marakwet) through hackathon network
-2. Partner with KEFRI, KFS, and local NGOs for data validation
-3. Layer carbon project developers and CSR teams for paid tiers
-4. Expand to East African Community via regional forestry initiatives
-
----
-
-## 12. Competitive Edge
-- Built for emerging markets: offline-first workflows and low-data alerts
-- Transparent metrics plus explainability for compliance-heavy donors
-- Unified view across survival, nurseries, biodiversity, and finance
-- Hackathon momentum provides access to stakeholders and datasets
-
----
-
-## 13. Traction and Roadmap
-- Prototype data model and dashboards scoped during hackathon sprint
-- Q1: ingest Sentinel scenes, deploy MVP dashboards, onboard pilot nurseries
-- Q2: launch impact prediction studio and donor evidence packs
-- Q3: monetize via subscription tiers, integrate payments, expand to Rwanda
-
----
-
-## 14. Team and Needs
-- Team mix: remote sensing, AI or ML, product, and conservation experts
-- Ask: data-sharing MoUs, pilot plots, satellite credits, and 75K USD to productionize
-- Invitation: collaborate to make restoration auditable and investable
-
----
-
-## 15. Call to Action
-- Pilot TowerGuard in your restoration program
-- Share datasets or expertise to accelerate impact measurement
-- Let's ensure every tree planted is a tree that thrives
+## 10. Team, Ask & Call to Action
+- Team of six specialists spanning remote sensing, AI/ML, product, and conservation operations with prior deployments across East Africa
+- Ask: data-sharing MoUs, pilot plots, satellite credits, and $75K USD to productionize the MVP
+- Call to action: pilot TowerGuard, share datasets/expertise, and help make every tree verifiably thriving
