@@ -156,6 +156,11 @@ Used for:
 
 * `fetch_rainfall_summary()`
 
+- chirps_sample.nc  
+  Source: CHIRPS v3.0 daily NetCDF (2024 March), downloaded from  
+  https://data.chc.ucsb.edu/products/CHIRPS-3.0/global_daily/netcdf/  
+  Used as a small dev fixture for rainfall summary testing.
+
 ---
 
 ## **6.3 SoilGrids Soil Properties**
