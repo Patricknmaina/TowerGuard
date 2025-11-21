@@ -1,0 +1,316 @@
+{
+  "type": "FeatureCollection",
+  "name": "kenya_water_towers_18",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "EPSG:4326" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_kenya",
+        "name": "Mount Kenya",
+        "category": "major",
+        "counties": ["Meru", "Embu", "Kirinyaga", "Nyeri", "Tharaka-Nithi", "Laikipia"],
+        "elevation_m": 5199,
+        "area_ha": null,
+        "major_rivers": ["Tana", "Ewaso Ng'iro North"],
+        "description": "Africa's second-highest mountain and Kenya's highest peak, a UNESCO World Heritage site and critical water catchment"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "aberdare_range",
+        "name": "Aberdare Range",
+        "category": "major",
+        "counties": ["Nyeri", "Nyandarua", "Murang'a", "Kiambu", "Laikipia"],
+        "elevation_m": 3999,
+        "area_ha": null,
+        "major_rivers": ["Tana", "Athi", "Ewaso Nyiro", "Malewa"],
+        "description": "Provides water for Sasumua and Ndakaini dams, supplying most of Nairobi's water. Supplies 55% of Kenya's hydroelectric power"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mau_forest_complex",
+        "name": "Mau Forest Complex",
+        "category": "major",
+        "counties": ["Narok", "Bomet", "Kericho", "Nakuru", "Uasin Gishu", "Baringo"],
+        "elevation_m": null,
+        "area_ha": 400000,
+        "major_rivers": ["Sondu", "Mara", "Nyando", "Yala", "Ewaso Ng'iro", "Molo", "Njoro", "Nderit", "Makalia", "Naishi", "Mumberes", "Nzoia"],
+        "description": "Kenya's largest water tower and indigenous montane forest. Feeds Lakes Victoria, Turkana, Baringo, Nakuru, and Natron. Critical for Mara-Serengeti ecosystem"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cherangani_hills",
+        "name": "Cherangani Hills",
+        "category": "major",
+        "counties": ["Elgeyo-Marakwet", "West Pokot", "Trans-Nzoia"],
+        "elevation_m": 3365,
+        "area_ha": 120841,
+        "major_rivers": ["Nzoia", "Turkwel", "Kerio"],
+        "description": "One of Kenya's 'big five' water catchments. Watershed between Lake Victoria and Lake Turkana basins. Turkwel River feeds Turkwel Dam for hydroelectric power"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_elgon",
+        "name": "Mount Elgon",
+        "category": "major",
+        "counties": ["Bungoma", "Trans-Nzoia"],
+        "elevation_m": null,
+        "area_ha": 72874,
+        "major_rivers": ["Nzoia", "Suam"],
+        "description": "Trans-boundary water tower shared with Uganda. Named after the Elgeyo tribe. Catchment for Lakes Victoria, Turkana, and Kyoga (Uganda)"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "chyulu_hills",
+        "name": "Chyulu Hills",
+        "category": "minor",
+        "counties": ["Makueni", "Kajiado"],
+        "elevation_m": 2188,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "100km volcanic field with porous rock allowing underground water storage. Feeds Mzima Springs, supplying one-third of Mombasa's water. No permanent surface rivers"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "huri_hills",
+        "name": "Huri Hills",
+        "category": "minor",
+        "counties": ["Marsabit"],
+        "elevation_m": 1700,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Remote highland region near Kenya-Ethiopia border. Home to Gabra and Borana pastoralist communities"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kirisia_hills",
+        "name": "Kirisia Hills",
+        "category": "minor",
+        "counties": ["Samburu"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Important water catchment for northern Kenya pastoralist communities"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "loita_hills",
+        "name": "Loita Hills",
+        "category": "minor",
+        "counties": ["Narok"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Naimina Enkiyio Forest. Significant water catchment in southern Kenya drylands, borders Mara Game Reserve. Trustland under Narok County. Critical dry season grazing area"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "marmanet_forest",
+        "name": "Marmanet Forest",
+        "category": "minor",
+        "counties": ["Laikipia", "Baringo"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": ["Ewaso Nyiro North", "Mukutan", "Ol Arabel", "Sandai"],
+        "description": "Serves Rift Valley drainage system. Provides water to Lake Baringo, Lake Bogoria, Buffalo Springs, and Shaba National Reserves"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mathews_range",
+        "name": "Mathews Range",
+        "category": "minor",
+        "counties": ["Samburu"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Also known as Lenkiyio Hills. Mountain range in northern Kenya"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_kipipiri",
+        "name": "Mount Kipipiri",
+        "category": "minor",
+        "counties": ["Nyandarua"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Mountain in central Kenya, part of the Aberdare ecosystem"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_kulal",
+        "name": "Mount Kulal",
+        "category": "minor",
+        "counties": ["Marsabit"],
+        "elevation_m": null,
+        "area_ha": 98547,
+        "major_rivers": [],
+        "description": "Located in northern Kenya. Eastern side drops to Chalbi Desert, western side to Lake Turkana. Serves Ewaso Ng'iro North Catchment with 23 springs (20 permanent, 3 seasonal)"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_marsabit",
+        "name": "Mount Marsabit",
+        "category": "minor",
+        "counties": ["Marsabit"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": [],
+        "description": "Volcanic mountain and important water source in northern Kenya's arid region"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mount_nyiru",
+        "name": "Mount Nyiru (Mount Njiru)",
+        "category": "minor",
+        "counties": ["Samburu"],
+        "elevation_m": null,
+        "area_ha": 45318,
+        "major_rivers": [],
+        "description": "Located in northern Kenya. Originally covered 26,107ha of forest and 19,211ha of grasslands in 1990"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ndotos",
+        "name": "Ndotos (Ndottos Range)",
+        "category": "minor",
+        "counties": ["Samburu"],
+        "elevation_m": 2050,
+        "area_ha": 97165,
+        "major_rivers": [],
+        "description": "Located in northeastern Samburu County, between Mathews Range and Mount Nyiru. Mt. Poi (2050m) is part of this range. Source of springs for pastoralist communities"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "nyambene_hills",
+        "name": "Nyambene Hills",
+        "category": "minor",
+        "counties": ["Meru"],
+        "elevation_m": 2518,
+        "area_ha": 26500,
+        "major_rivers": ["Isiolo", "Tigania"],
+        "description": "Volcanic mountain range on northeastern slopes of Mount Kenya. Part of Nyambene Forest Reserve. Known for miraa (khat) cultivation. Sacred sites for Ameru community"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shimba_hills",
+        "name": "Shimba Hills",
+        "category": "minor",
+        "counties": ["Kwale"],
+        "elevation_m": null,
+        "area_ha": null,
+        "major_rivers": ["Mkurumudzi", "Manolo", "Pemba", "Ramisi"],
+        "description": "Coastal water tower. Biodiversity conservation hotspot. Marere Springs supplies water to Kwale and Mombasa counties. Protected as National Reserve and gazetted forests"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": []
+      }
+    }
+  ]
+}
