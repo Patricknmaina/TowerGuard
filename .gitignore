@@ -3,9 +3,16 @@ IMPLEMENTATION_COMPLETE.md
 ML_ENGINEER.md
 QUICK_REFERENCE.md
 backend/README.md
+TIER1_IMPLEMENTATION_COMPLETE.md
+TIER1_QUICK_REFERENCE.md
+TIER1_SUMMARY.md
+TIER1_DELIVERY_INDEX.md
 
 # virtual environment
 venv/
 
 # output logs
 backend/logs/
+
+# data files
+DataWrangler/
