@@ -1,1 +1,41 @@
 id,lat,lon,scientific_name,local_name,english_common_name,source,water_tower_id
+bio_0001,0.109570,37.209946,Juniperus procera,,African pencil cedar,"GBIF occurrence 5216371522, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0002,-0.021242,37.277611,Juniperus procera,,African pencil cedar,"GBIF occurrence 5217392541, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0003,-1.177265,36.935818,Juniperus procera,,African pencil cedar,"GBIF occurrence 5109863168, dataset 7a3679ef-5582-4aaa-81f0-8c2545cafc81",aberdare_range
+bio_0004,-0.961931,35.732702,Juniperus procera,,African pencil cedar,"GBIF occurrence 4907973198, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mau_forest_complex
+bio_0005,-1.234614,36.819376,Juniperus procera,,African pencil cedar,"GBIF occurrence 4908330260, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0006,-0.941420,36.594178,Juniperus procera,,African pencil cedar,"GBIF occurrence 4054798593, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kipipiri
+bio_0007,-0.416597,36.666665,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 3455217765, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0008,-0.318545,37.191928,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 2234736224, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0009,-0.304470,37.566210,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 2397825702, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0010,-0.563450,37.698710,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 2397826205, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0011,-0.274890,37.156560,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 2397828970, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0012,-0.344740,37.046420,Podocarpus latifolius,,Yellowwood,"GBIF occurrence 2397829168, dataset 718d628f-149a-4789-a062-05415f042c40",aberdare_range
+bio_0013,0.314214,37.233792,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 5892507720, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0014,-1.739238,35.922833,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 5892502292, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",loita_hills
+bio_0015,-1.374375,36.750228,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 5892498143, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0016,-1.375470,36.746059,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 5892739218, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0017,-0.943830,36.595528,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 4046556827, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kipipiri
+bio_0018,-0.942861,36.595995,Olea europaea subsp. africana,,Wild olive,"GBIF occurrence 4062979533, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kipipiri
+bio_0019,-0.382000,37.156000,Prunus africana,,African cherry,"GBIF occurrence 5110068445, dataset 7a3679ef-5582-4aaa-81f0-8c2545cafc81",aberdare_range
+bio_0020,-0.028000,34.417000,Prunus africana,,African cherry,"GBIF occurrence 5110451414, dataset 7a3679ef-5582-4aaa-81f0-8c2545cafc81",mt_elgon
+bio_0021,-0.902755,36.449014,Prunus africana,,African cherry,"GBIF occurrence 4127361865, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kipipiri
+bio_0022,-0.174700,37.463300,Prunus africana,,African cherry,"GBIF occurrence 2397825812, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0023,-0.174700,37.463300,Prunus africana,,African cherry,"GBIF occurrence 2397825949, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0024,-0.531100,37.450600,Prunus africana,,African cherry,"GBIF occurrence 2397826238, dataset 718d628f-149a-4789-a062-05415f042c40",mt_kenya
+bio_0025,-1.283785,36.816469,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2242765092, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0026,-1.236040,36.842153,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2242773317, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0027,-1.235972,36.842135,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2242773326, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0028,-1.236697,36.841710,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2242782593, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0029,-1.325577,36.702282,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2242792495, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0030,-0.451390,37.093330,Afrocarpus gracilior,,East African yellowwood,"GBIF occurrence 2397827832, dataset 718d628f-149a-4789-a062-05415f042c40",aberdare_range
+bio_0031,-0.454805,36.717003,Hagenia abyssinica,,African redwood,"GBIF occurrence 5076821229, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0032,-0.159528,37.448597,Hagenia abyssinica,,African redwood,"GBIF occurrence 5844613946, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0033,-0.168988,37.222724,Hagenia abyssinica,,African redwood,"GBIF occurrence 5007424694, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0034,-0.169317,37.218475,Hagenia abyssinica,,African redwood,"GBIF occurrence 5062928213, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya
+bio_0035,-0.389881,36.574249,Hagenia abyssinica,,African redwood,"GBIF occurrence 4978580759, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kipipiri
+bio_0036,-1.112018,36.692574,Hagenia abyssinica,,African redwood,"GBIF occurrence 5076816080, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",aberdare_range
+bio_0037,-0.820139,35.894239,Dombeya torrida,,Dombeya,"GBIF occurrence 4111585407, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mau_forest_complex
+bio_0038,-0.698060,36.823280,Dombeya torrida,,Dombeya,"GBIF occurrence 2397827791, dataset 718d628f-149a-4789-a062-05415f042c40",aberdare_range
+bio_0039,-0.675000,36.809500,Dombeya torrida,,Dombeya,"GBIF occurrence 2397828034, dataset 718d628f-149a-4789-a062-05415f042c40",aberdare_range
+bio_0040,-0.173257,37.151448,Dombeya torrida,,Dombeya,"GBIF occurrence 2873932385, dataset 50c9509d-22c7-4a22-a47d-8c48425ef4a7",mt_kenya

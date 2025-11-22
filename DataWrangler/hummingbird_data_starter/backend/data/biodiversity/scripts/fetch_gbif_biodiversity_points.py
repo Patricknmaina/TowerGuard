@@ -1,15 +1,16 @@
 import csv
 import math
+import time
 import requests
 from pathlib import Path
+from datetime import date
 
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 # CONFIG
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 
-OUT_PATH = Path("backend/data/biodiversity/biodiversity_points.csv")
+OUT_PATH = Path("DataWrangler/hummingbird_data_starter/backend/data/biodiversity/biodiversity_points.csv")
 
-# Key indigenous species for Kenya’s montane / Afro-tropical forests
 SPECIES = [
     "Juniperus procera",
     "Podocarpus latifolius",
@@ -24,12 +25,17 @@ SPECIES = [
     "Yushania alpina",
 ]
 
-# ~40 final rows: 11 species × 6 records ≈ 66 → downsample → 40
+# 11 species × 6 ≈ 66 → downsample to 40
 MAX_PER_SPECIES = 6
+TARGET_TOTAL_POINTS = 40
 
 GBIF_API = "https://api.gbif.org/v1/occurrence/search"
 
-# 18 water tower centroids (from your buffer dataset)
+# Increase timeout + retries (fixes your error)
+TIMEOUT_SECONDS = 90
+MAX_RETRIES = 5
+BACKOFF_SECONDS = 5  # grows each retry
+
 WATER_TOWERS = [
     {"id": "mau_forest_complex", "lat": -0.5230, "lon": 35.7290},
     {"id": "mt_kenya", "lat": 0.1521, "lon": 37.3084},
@@ -51,7 +57,6 @@ WATER_TOWERS = [
     {"id": "shimba_hills", "lat": -4.2700, "lon": 39.4300},
 ]
 
-# Common names (can refine later)
 COMMON_NAME_MAP = {
     "Juniperus procera": "African pencil cedar",
     "Podocarpus latifolius": "Yellowwood",
@@ -66,14 +71,13 @@ COMMON_NAME_MAP = {
     "Yushania alpina": "African alpine bamboo",
 }
 
-# Local names are filled later in species_local_names.csv
-def local_name_placeholder(scientific_name: str) -> str:
+def local_name_placeholder(_: str) -> str:
     return ""
 
 
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 # HELPERS
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 
 def haversine_km(lat1, lon1, lat2, lon2):
     R = 6371.0
@@ -85,19 +89,19 @@ def haversine_km(lat1, lon1, lat2, lon2):
 
 
 def nearest_water_tower(lat, lon):
-    best = None
+    best_id = None
     best_dist = float("inf")
     for wt in WATER_TOWERS:
         d = haversine_km(lat, lon, wt["lat"], wt["lon"])
         if d < best_dist:
             best_dist = d
-            best = wt["id"]
-    return best
+            best_id = wt["id"]
+    return best_id
 
 
 def fetch_gbif_points(scientific_name: str, max_records: int):
     """
-    Query GBIF for georeferenced Kenyan occurrences for a given species.
+    Query GBIF with retries/backoff to avoid timeouts.
     """
     params = {
         "country": "KE",
@@ -105,14 +109,26 @@ def fetch_gbif_points(scientific_name: str, max_records: int):
         "hasCoordinate": "true",
         "limit": max_records,
     }
-    r = requests.get(GBIF_API, params=params, timeout=30)
-    r.raise_for_status()
-    return r.json().get("results", [])
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            r = requests.get(GBIF_API, params=params, timeout=TIMEOUT_SECONDS)
+            r.raise_for_status()
+            return r.json().get("results", [])
+
+        except requests.exceptions.RequestException as e:
+            wait = BACKOFF_SECONDS * attempt
+            print(f"  ⚠️ GBIF timeout/error for {scientific_name} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            print(f"  ...waiting {wait}s then retrying")
+            time.sleep(wait)
+
+    print(f"  ❌ Failed to fetch GBIF data for {scientific_name} after {MAX_RETRIES} retries. Skipping.")
+    return []
 
 
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 # MAIN
-# ───────────────────────────────────────────────────────────────
+# ───────────────────────────────────────────────
 
 def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -158,19 +174,21 @@ def main():
                 "source": f"GBIF occurrence {occ_id}, dataset {dataset_key}",
                 "water_tower_id": wt_id or "",
             })
-
             idx += 1
 
-    # Downsample to exactly 40 rows if too many
-    if len(rows) > 40:
-        rows = rows[:40]
+        # Early stop if we already have enough
+        if len(rows) >= TARGET_TOTAL_POINTS:
+            break
+
+    # Trim to 40 max
+    rows = rows[:TARGET_TOTAL_POINTS]
 
     with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"✓ Wrote {len(rows)} real biodiversity records to {OUT_PATH}")
+    print(f"\n✓ Wrote {len(rows)} real biodiversity records to {OUT_PATH}")
 
 
 if __name__ == "__main__":
