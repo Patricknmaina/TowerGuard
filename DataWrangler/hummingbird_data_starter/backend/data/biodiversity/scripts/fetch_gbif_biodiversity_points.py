@@ -3,7 +3,6 @@ import math
 import time
 import requests
 from pathlib import Path
-from datetime import date
 
 # ───────────────────────────────────────────────
 # CONFIG
@@ -25,29 +24,31 @@ SPECIES = [
     "Yushania alpina",
 ]
 
-# 11 species × 6 ≈ 66 → downsample to 40
-MAX_PER_SPECIES = 6
-TARGET_TOTAL_POINTS = 40
+# Target output
+TARGET_TOTAL_POINTS = 100
+
+# Pull more per species, with pagination
+MAX_PER_SPECIES = 20       # attempt up to 20 points per species
+PAGE_SIZE = 50             # GBIF page size (limit)
 
 GBIF_API = "https://api.gbif.org/v1/occurrence/search"
-
-# Increase timeout + retries (fixes your error)
 TIMEOUT_SECONDS = 90
 MAX_RETRIES = 5
-BACKOFF_SECONDS = 5  # grows each retry
+BACKOFF_SECONDS = 5
 
+# 18 gazetted tower centroids (for nearest-assignment)
 WATER_TOWERS = [
-    {"id": "mau_forest_complex", "lat": -0.5230, "lon": 35.7290},
-    {"id": "mt_kenya", "lat": 0.1521, "lon": 37.3084},
     {"id": "aberdare_range", "lat": -0.4167, "lon": 36.7000},
     {"id": "cherangani_hills", "lat": 1.2130, "lon": 35.4370},
-    {"id": "mt_elgon", "lat": 1.1200, "lon": 34.5600},
     {"id": "chyulu_hills", "lat": -2.5000, "lon": 37.8833},
     {"id": "huri_hills", "lat": 3.3160, "lon": 38.4500},
     {"id": "lerroghi_kirisia_hills", "lat": 0.7000, "lon": 36.9500},
     {"id": "loita_hills", "lat": -1.5800, "lon": 35.6830},
     {"id": "marmanet_forest", "lat": -0.2500, "lon": 36.4500},
     {"id": "matthews_range", "lat": 1.1000, "lon": 37.3500},
+    {"id": "mau_forest_complex", "lat": -0.5230, "lon": 35.7290},
+    {"id": "mt_elgon", "lat": 1.1200, "lon": 34.5600},
+    {"id": "mt_kenya", "lat": 0.1521, "lon": 37.3084},
     {"id": "mt_kipipiri", "lat": -0.4200, "lon": 36.5000},
     {"id": "mt_kulal", "lat": 2.5500, "lon": 36.9000},
     {"id": "mt_marsabit", "lat": 2.3330, "lon": 37.9830},
@@ -59,10 +60,10 @@ WATER_TOWERS = [
 
 COMMON_NAME_MAP = {
     "Juniperus procera": "African pencil cedar",
-    "Podocarpus latifolius": "Yellowwood",
+    "Podocarpus latifolius": "East African yellowwood",
     "Olea europaea subsp. africana": "Wild olive",
     "Prunus africana": "African cherry",
-    "Afrocarpus gracilior": "East African yellowwood",
+    "Afrocarpus gracilior": "East African yellowwood (lowland)",
     "Hagenia abyssinica": "African redwood",
     "Dombeya torrida": "Dombeya",
     "Croton megalocarpus": "Croton",
@@ -89,41 +90,65 @@ def haversine_km(lat1, lon1, lat2, lon2):
 
 
 def nearest_water_tower(lat, lon):
-    best_id = None
-    best_dist = float("inf")
+    best_id, best_dist = None, float("inf")
     for wt in WATER_TOWERS:
         d = haversine_km(lat, lon, wt["lat"], wt["lon"])
         if d < best_dist:
-            best_dist = d
-            best_id = wt["id"]
+            best_dist, best_id = d, wt["id"]
     return best_id
 
 
-def fetch_gbif_points(scientific_name: str, max_records: int):
-    """
-    Query GBIF with retries/backoff to avoid timeouts.
-    """
-    params = {
-        "country": "KE",
-        "scientificName": scientific_name,
-        "hasCoordinate": "true",
-        "limit": max_records,
-    }
-
+def gbif_request(params):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             r = requests.get(GBIF_API, params=params, timeout=TIMEOUT_SECONDS)
             r.raise_for_status()
-            return r.json().get("results", [])
-
+            return r.json()
         except requests.exceptions.RequestException as e:
             wait = BACKOFF_SECONDS * attempt
-            print(f"  ⚠️ GBIF timeout/error for {scientific_name} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            print(f"  ⚠️ GBIF error (attempt {attempt}/{MAX_RETRIES}): {e}")
             print(f"  ...waiting {wait}s then retrying")
             time.sleep(wait)
+    return {"results": [], "endOfRecords": True}
 
-    print(f"  ❌ Failed to fetch GBIF data for {scientific_name} after {MAX_RETRIES} retries. Skipping.")
-    return []
+
+def fetch_gbif_points(scientific_name: str, max_records: int):
+    """
+    Paginated GBIF fetch so we don't time out or under-fetch.
+    """
+    collected = []
+    offset = 0
+
+    while len(collected) < max_records:
+        params = {
+            "country": "KE",
+            "scientificName": scientific_name,
+            "hasCoordinate": "true",
+            "limit": PAGE_SIZE,
+            "offset": offset,
+        }
+
+        data = gbif_request(params)
+        results = data.get("results", [])
+
+        if not results:
+            break
+
+        for rec in results:
+            lat = rec.get("decimalLatitude")
+            lon = rec.get("decimalLongitude")
+            if lat is None or lon is None:
+                continue
+            collected.append(rec)
+            if len(collected) >= max_records:
+                break
+
+        if data.get("endOfRecords"):
+            break
+
+        offset += PAGE_SIZE
+
+    return collected
 
 
 # ───────────────────────────────────────────────
@@ -176,19 +201,26 @@ def main():
             })
             idx += 1
 
-        # Early stop if we already have enough
         if len(rows) >= TARGET_TOTAL_POINTS:
             break
 
-    # Trim to 40 max
     rows = rows[:TARGET_TOTAL_POINTS]
+
+    # quick coverage report
+    coverage = {}
+    for r in rows:
+        coverage[r["water_tower_id"]] = coverage.get(r["water_tower_id"], 0) + 1
+
+    print("\nCoverage by water tower:")
+    for wt in sorted(coverage.keys()):
+        print(f"  {wt}: {coverage[wt]} points")
 
     with OUT_PATH.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"\n✓ Wrote {len(rows)} real biodiversity records to {OUT_PATH}")
+    print(f"\n✓ Wrote {len(rows)} real GBIF biodiversity records to {OUT_PATH}")
 
 
 if __name__ == "__main__":
