@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   ApiHealth,
   BiodiversitySpecies,
   FeatureRequestBody,
@@ -27,9 +27,15 @@ async function request<T>(path: string, method: HttpMethod = "GET", body?: unkno
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `API error ${response.status}`);
+    let payload: unknown;
+    try {
+      payload = await response.json();
+    } catch {
+      payload = await response.text();
+    }
+    throw payload;
   }
+
   return (await response.json()) as T;
 }
 
@@ -38,11 +44,28 @@ export const getSites = () => request<Site[]>("/sites");
 export const createSite = (payload: SiteCreatePayload) => request<Site>("/sites", "POST", payload);
 export const getSite = (siteId: string) => request<Site>(`/sites/${siteId}`);
 export const getSiteFeatures = (siteId: string) => request<SiteFeature[]>(`/sites/${siteId}/features`);
+export const getSitePredictions = (siteId: string) => request<SitePrediction[]>(`/sites/${siteId}/predictions`);
 export const triggerFeatureExtraction = (siteId: string, body: FeatureRequestBody) =>
   request<SiteFeature>(`/sites/${siteId}/features`, "POST", body);
 export const triggerPrediction = (siteId: string, body?: PredictionRequestBody) =>
   request<SitePrediction>(`/sites/${siteId}/predict`, "POST", body);
 export const getWaterTowers = () => request<WaterTower[]>("/water-towers");
-export const getBiodiversityBySite = (siteId: string) =>
-  request<BiodiversitySpecies[]>(`/biodiversity?site_id=${siteId}`);
+export async function getBiodiversityByWaterTower(waterTowerId: string) {
+  const res = await fetch(`${API_BASE_URL}/biodiversity?water_tower_id=${encodeURIComponent(waterTowerId)}`);
+  if (!res.ok) {
+    throw await res.json();
+  }
+  return res.json() as Promise<BiodiversitySpecies[]>;
+}
+export async function getBiodiversityBySite(siteId: string) {
+  const res = await fetch(`${API_BASE_URL}/biodiversity?site_id=${encodeURIComponent(siteId)}`);
+  if (!res.ok) {
+    throw await res.json();
+  }
+  return res.json() as Promise<BiodiversitySpecies[]>;
+}
 export const getNurseries = () => request<Nursery[]>("/nurseries");
+
+// Enrich all water towers (NDVI, climate, soil)
+export const enrichAllWaterTowers = (ndviStart: string, ndviEnd: string) =>
+  request<WaterTower[]>(`/water-towers/enrich-all?ndvi_start=${encodeURIComponent(ndviStart)}&ndvi_end=${encodeURIComponent(ndviEnd)}`, "POST");

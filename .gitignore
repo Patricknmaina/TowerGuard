@@ -1,18 +1,15 @@
-# markdown files
-IMPLEMENTATION_COMPLETE.md
-ML_ENGINEER.md
-QUICK_REFERENCE.md
-backend/README.md
-TIER1_IMPLEMENTATION_COMPLETE.md
-TIER1_QUICK_REFERENCE.md
-TIER1_SUMMARY.md
-TIER1_DELIVERY_INDEX.md
+# secrets
+.env
+.env.*
+backend/credentials/
+frontend/.env
+frontend/.env.*
+backend/.env
+backend/.env.*
 
-# virtual environment
-venv/
-
-# output logs
-backend/logs/
-
-# data files
-DataWrangler/
+# node/build stuff
+node_modules/
+frontend/node_modules/
+frontend/.vite/
+dist/
+.DS_Store

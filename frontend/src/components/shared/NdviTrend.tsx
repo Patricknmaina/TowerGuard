@@ -12,9 +12,12 @@ const NdviTrend = ({ features }: NdviTrendProps) => {
 
   const chartData = features
     .slice()
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort(
+      (a, b) =>
+        new Date(a.start_date ?? a.created_at).getTime() - new Date(b.start_date ?? b.created_at).getTime(),
+    )
     .map((item) => ({
-      date: new Date(item.date).toLocaleDateString(),
+      date: new Date(item.start_date ?? item.created_at).toLocaleDateString(),
       ndvi: item.ndvi_mean ?? 0,
     }));
 

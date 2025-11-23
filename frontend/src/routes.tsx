@@ -1,25 +1,61 @@
-﻿import { createBrowserRouter } from "react-router-dom";
-import AppLayout from "./components/layout/AppLayout";
+import { createBrowserRouter } from "react-router-dom";
+import AppShell from "./pages/AppShell";
+import GlobalLayout from "./pages/GlobalLayout";
+import LandingPage from "./pages/LandingPage";
+import StoryPage from "./pages/StoryPage";
 import DashboardPage from "./pages/DashboardPage";
-import SitesPage from "./pages/sites/SitesPage";
-import SiteDetailPage from "./pages/site-detail/SiteDetailPage";
+import ExplorePage from "./pages/ExplorePage";
+import WaterTowersDirectory from "./pages/WaterTowersDirectory";
+import WaterTowerDetailPage from "./pages/WaterTowerDetailPage";
+import TowerNurseriesPage from "./pages/TowerNurseriesPage";
+import TowersPage from "./pages/TowersPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import AlertsPage from "./pages/AlertsPage";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <AppLayout />,
+    element: <GlobalLayout />,
     children: [
       {
-        index: true,
-        element: <DashboardPage />,
+        path: "/",
+        element: <LandingPage />,
       },
       {
-        path: "sites",
-        element: <SitesPage />,
+        path: "/story",
+        element: <StoryPage />,
       },
       {
-        path: "sites/:siteId",
-        element: <SiteDetailPage />,
+        path: "/towers",
+        element: <WaterTowersDirectory />,
+      },
+      {
+        path: "/towers/:id",
+        element: <WaterTowerDetailPage />,
+      },
+      {
+        path: "/towers/:id/nurseries",
+        element: <TowerNurseriesPage />,
+      },
+      {
+        element: <AppShell />,
+        children: [
+          {
+            path: "dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "explore",
+            element: <ExplorePage />,
+          },
+          {
+            path: "analytics",
+            element: <AnalyticsPage />,
+          },
+          {
+            path: "alerts",
+            element: <AlertsPage />,
+          },
+        ],
       },
     ],
   },

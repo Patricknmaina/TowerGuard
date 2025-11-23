@@ -44,7 +44,11 @@ const TowerGrid = ({ towers, selectedTowerId, onSelect }: TowerGridProps) => {
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-400">Catchment Area</p>
-              <p className="font-semibold text-brand-gray">{tower.keyMetrics?.catchmentAreaHa ?? 0} ha</p>
+              <p className="font-semibold text-brand-gray">
+                {tower.keyMetrics?.catchmentAreaHa != null
+                  ? `${(tower.keyMetrics.catchmentAreaHa * 0.01).toFixed(2)} km²`
+                  : "0 km²"}
+              </p>
             </div>
           </div>
         </button>

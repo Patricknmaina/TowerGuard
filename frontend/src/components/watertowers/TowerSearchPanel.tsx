@@ -1,5 +1,6 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { TowerView } from "../../pages/DashboardPage";
+import { getTowerAreaHa } from "../../utils/towerAreaOverrides";
 
 interface TowerSearchPanelProps {
   towers: TowerView[];
@@ -37,21 +38,26 @@ const TowerSearchPanel = ({ towers, selectedTowerId, onSelect, onClose }: TowerS
         onChange={(e) => setTerm(e.target.value)}
       />
       <div className="space-y-2">
-        {filtered.map((tower) => (
-          <button
-            key={tower.id}
-            onClick={() => onSelect(tower.id)}
-            className={`flex w-full items-center justify-between rounded-2xl border px-3 py-3 text-left text-sm transition hover:bg-slate-800 ${
-              tower.id === selectedTowerId ? "border-emerald-400 bg-slate-800/80" : "border-slate-800 bg-slate-900/80"
-            }`}
-          >
-            <div>
-              <p className="text-base font-semibold text-white">{tower.name}</p>
-              <p className="text-xs text-slate-300">{tower.county ?? "Kenya"}</p>
-            </div>
-            <span className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-200">{tower.areaHa ?? "—"} ha</span>
-          </button>
-        ))}
+        {filtered.map((tower) => {
+          const areaHa = getTowerAreaHa(tower.id, tower.area_ha ?? null);
+          return (
+            <button
+              key={tower.id}
+              onClick={() => onSelect(tower.id)}
+              className={`flex w-full items-center justify-between rounded-2xl border px-3 py-3 text-left text-sm transition hover:bg-slate-800 ${
+                tower.id === selectedTowerId ? "border-emerald-400 bg-slate-800/80" : "border-slate-800 bg-slate-900/80"
+              }`}
+            >
+              <div>
+                <p className="text-base font-semibold text-white">{tower.name}</p>
+                <p className="text-xs text-slate-300">{tower.county ?? "Kenya"}</p>
+              </div>
+              <span className="rounded-full bg-slate-800 px-2 py-1 text-xs text-slate-200">
+                {areaHa ? `${areaHa.toLocaleString()} ha` : "Area unknown"}
+              </span>
+            </button>
+          );
+        })}
         {!filtered.length && <p className="text-sm text-slate-400">No towers match the search.</p>}
       </div>
     </div>

@@ -1,0 +1,12 @@
+@echo off
+setlocal
+
+REM Auto-start backend and frontend in new terminal windows.
+
+REM Backend server
+start "TowerGuard Backend" cmd /k "cd /d %~dp0backend && if exist venv\\Scripts\\activate venv\\Scripts\\activate && uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload"
+
+REM Frontend dev server
+start "TowerGuard Frontend" cmd /k "cd /d %~dp0frontend && npm run dev"
+
+endlocal

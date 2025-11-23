@@ -1,338 +1,183 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import WaterTowersMap from "../components/map/WaterTowersMap";
+import TowerDrawer from "../components/drawer/TowerDrawer";
 import DataState from "../components/shared/DataState";
-import WaterTowersMap from "../components/watertowers/WaterTowersMap";
-import TowerInfoPanel from "../components/watertowers/TowerInfoPanel";
-import TowerSearchPanel from "../components/watertowers/TowerSearchPanel";
-import LayersPanel from "../components/watertowers/LayersPanel";
-import TowerAnalyticsPanel from "../components/watertowers/TowerAnalyticsPanel";
-import TowerAlertsPanel from "../components/watertowers/TowerAlertsPanel";
+import StatCard from "../components/cards/StatCard";
 import { useWaterTowers } from "../hooks/useWaterTowers";
 import { useNurseries } from "../hooks/useNurseries";
-import type { WaterTower } from "../api/types";
-
-export type RiskLevel = "High" | "Medium" | "Low";
-export type ProtectionStatus = "Gazetted" | "Proposed" | "Degraded" | "Other";
-
-export interface TowerSite {
-  id: string;
-  name: string;
-  lat?: number;
-  lng?: number;
-}
-
-export interface TowerView extends WaterTower {
-  county?: string;
-  protectionStatus?: ProtectionStatus;
-  riskLevel?: RiskLevel;
-  keyMetrics?: {
-    forestCoverPct?: number;
-    catchmentAreaHa?: number;
-    waterYieldIndex?: number;
-    populationServed?: number;
-  };
-  hasCriticalAlert?: boolean;
-  imageUrl?: string;
-  areaHa?: number;
-  sites?: TowerSite[];
-  objectives?: string[];
-  description?: string;
-}
-
-const fallbackRisk: RiskLevel[] = ["High", "Medium", "Low"];
-const fallbackProtection: ProtectionStatus[] = ["Gazetted", "Proposed", "Degraded"];
-
-// Gazetted water tower placeholders with quick counties & representative imagery.
-const towerMeta: Record<
-  string,
-  { counties: string[]; imageUrl: string }
-> = {
-  "aberdare range": {
-    counties: ["Nyeri", "Murang'a", "Kiambu", "Nyandarua", "Laikipia"],
-    imageUrl: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80",
-  },
-  "cherangani hills": {
-    counties: ["Elgeyo Marakwet", "West Pokot", "Trans Nzoia", "Uasin Gishu"],
-    imageUrl: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1400&q=80",
-  },
-  "chyulu hills": {
-    counties: ["Makueni", "Taita Taveta", "Kajiado"],
-    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
-  },
-  "huri hills": {
-    counties: ["Marsabit"],
-    imageUrl: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80",
-  },
-  "lerroghi kirisia hills": {
-    counties: ["Samburu"],
-    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
-  },
-  "loita hills": {
-    counties: ["Narok"],
-    imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80",
-  },
-  "marmanet forest": {
-    counties: ["Laikipia", "Nakuru", "Baringo", "Nyandarua"],
-    imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=80",
-  },
-  "matthews range": {
-    counties: ["Samburu"],
-    imageUrl: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mau forest complex": {
-    counties: ["Nakuru", "Baringo", "Kericho", "Narok", "Bomet", "Nandi", "Uasin Gishu"],
-    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount elgon water tower": {
-    counties: ["Bungoma", "Trans Nzoia"],
-    imageUrl: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount kenya water tower": {
-    counties: ["Embu", "Tharaka Nithi", "Meru", "Laikipia", "Nyeri", "Kirinyaga"],
-    imageUrl: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount kipipiri": {
-    counties: ["Nyandarua"],
-    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount kulal": {
-    counties: ["Marsabit"],
-    imageUrl: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount marsabit": {
-    counties: ["Marsabit"],
-    imageUrl: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-  },
-  "mount nyiru": {
-    counties: ["Samburu"],
-    imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80",
-  },
-  "ndotos hills": {
-    counties: ["Samburu"],
-    imageUrl: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
-  },
-  "nyambene hills": {
-    counties: ["Meru"],
-    imageUrl: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80",
-  },
-  "shimba hills": {
-    counties: ["Kwale"],
-    imageUrl: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
-  },
-};
+import { useBiodiversityByTower } from "../hooks/useBiodiversityByTower";
+import { useHealthPing } from "../hooks/useHealthPing";
+import * as turf from "@turf/turf";
+import { getTowerAreaHa } from "../utils/towerAreaOverrides";
 
 const DashboardPage = () => {
-  const { data: waterTowers, isLoading, isError, error } = useWaterTowers();
-  const { data: nurseries } = useNurseries();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: towers, isLoading, isError, error } = useWaterTowers();
   const [selectedTowerId, setSelectedTowerId] = useState<string | null>(null);
-  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
-  const [activeLeftTab, setActiveLeftTab] = useState<"tower" | "communities" | "hydrology" | "biodiversity">("tower");
-  const [activeOverlay, setActiveOverlay] = useState<"search" | "layers" | "analytics" | "alerts" | null>(null);
-  const [whatsappNumber, setWhatsappNumber] = useState("+254712345678");
-  const [alertIntervalMinutes, setAlertIntervalMinutes] = useState(30);
-  const [panelOpen, setPanelOpen] = useState(true);
-  const [layerState, setLayerState] = useState<{
-    boundary: boolean;
-    bubbles: boolean;
-    satellite: boolean;
-    ndvi: boolean;
-    rainfall: boolean;
-  }>({
-    boundary: true,
-    bubbles: true,
-    satellite: false,
-    ndvi: false,
-    rainfall: false,
-  });
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const towersEnriched: TowerView[] = useMemo(() => {
-    if (!waterTowers) return [];
-    return waterTowers.map((tower, idx) => {
-      const protectionStatus = (tower.category as ProtectionStatus) ?? fallbackProtection[idx % fallbackProtection.length];
-      const riskLevel = fallbackRisk[idx % fallbackRisk.length];
-      const sites: TowerSite[] = [
-        { id: `${tower.id}-site-a`, name: `${tower.name} Site A`, lat: 0.1 + idx * 0.02, lng: 37.2 + idx * 0.03 },
-        { id: `${tower.id}-site-b`, name: `${tower.name} Site B`, lat: -0.1 + idx * 0.01, lng: 36.9 + idx * 0.02 },
-      ];
-      const meta = towerMeta[tower.name?.toLowerCase?.() ?? ""] ?? undefined;
-      const incomingImage = (tower as any).imageUrl as string | undefined;
-      return {
-        ...tower,
-        county: tower.counties?.[0] ?? meta?.counties?.[0],
-        counties: tower.counties?.length ? tower.counties : meta?.counties,
-        protectionStatus,
-        riskLevel,
-        keyMetrics: {
-          forestCoverPct: 40 + idx * 3,
-          catchmentAreaHa: 80000 + idx * 2500,
-          waterYieldIndex: 0.7 + (idx % 3) * 0.05,
-          populationServed: 1500000 + idx * 200000,
-        },
-        hasCriticalAlert: riskLevel === "High",
-        imageUrl: incomingImage ?? meta?.imageUrl,
-        areaHa: 120000 + idx * 3500,
-        sites,
-        objectives: ["Water Regulation", "Biodiversity", "Hydropower"],
-        description:
-          "This water tower plays a critical role in regulating downstream water availability, sustaining biodiversity, and supporting community livelihoods.",
-      };
-    });
-  }, [waterTowers]);
+  const selectedTower = useMemo(
+    () => towers?.find((tower) => tower.id === selectedTowerId) ?? null,
+    [towers, selectedTowerId]
+  );
 
-  const selectedTower = towersEnriched.find((t) => t.id === selectedTowerId) ?? towersEnriched[0];
-  const activeSiteId = selectedSiteId ?? selectedTower?.sites?.[0]?.id ?? null;
+  const { data: nurseries } = useNurseries();
+  const associatedNurseries = useMemo(() => {
+    if (!selectedTower || !nurseries) return [];
+    return nurseries.filter((n) => n.water_tower_id === selectedTower.id);
+  }, [selectedTower, nurseries]);
 
-  const handleSelectTower = (id: string) => {
-    setSelectedTowerId(id);
-    setSelectedSiteId(null);
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("tower", id);
-      return next;
-    });
-  };
+  const {
+    data: biodiversity = [],
+    isError: isBiodiversityError,
+    error: biodiversityError,
+  } = useBiodiversityByTower(selectedTower?.id ?? "");
+
+  const health = useHealthPing();
+
+  const selectedAreaHa = useMemo(() => {
+    if (!selectedTower) return null;
+    const override = getTowerAreaHa(selectedTower.id, selectedTower.area_ha ?? null);
+    if (override != null) return override;
+    if (!selectedTower.geometry) return null;
+    return turf.area(selectedTower.geometry as any) / 10000;
+  }, [selectedTower]);
+
+  if (isLoading || !towers) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warm-50">
+        <DataState state="loading" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <DataState state="error" message={(error as Error)?.message ?? "Unable to load towers"} />;
+  }
+
+  const statusLabel = health.data?.status ?? "Checking API";
+  const statusColor =
+    statusLabel.toLowerCase().includes("online") || statusLabel.toLowerCase() === "ok"
+      ? "bg-soft-green-100 text-soft-green-700"
+      : statusLabel.toLowerCase().includes("offline") || statusLabel.toLowerCase().includes("error")
+      ? "bg-rose-50 text-rose-600"
+      : "bg-amber-50 text-amber-700";
+
+  const towerHighlights = towers.slice(0, 3);
+  const nurseryHighlights = nurseries?.slice(0, 3) ?? [];
 
   return (
-    <div className="relative min-h-[720px] w-full overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 text-white shadow-xl">
-      <div className="absolute inset-0 z-0">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <DataState state="loading" />
-          </div>
-        ) : isError ? (
-          <div className="flex h-full items-center justify-center p-6">
-            <DataState state="error" message={(error as Error).message} />
-          </div>
-        ) : (
+    <div className="min-h-screen w-full bg-warm-50 px-4 py-8 md:px-12 md:py-12 space-y-8">
+      <header className="space-y-4 max-w-7xl mx-auto">
+        <p className="text-xs uppercase tracking-[0.4em] text-soft-green-600 font-medium">TowerGuard</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <h1 className="text-4xl font-semibold text-charcoal-900">Kenya Water Towers Observatory</h1>
+          <span className={`rounded-full px-4 py-1.5 text-xs font-semibold ${statusColor} shadow-sm`}>
+            API Status: {statusLabel}
+          </span>
+        </div>
+        <p className="max-w-2xl text-sm text-charcoal-600 leading-relaxed">
+          Map-driven overview of Kenya's gazetted catchments. Click a tower to open the right-side story panel
+          with biodiversity, nurseries, and hydrology data.
+        </p>
+      </header>
+
+      <section className="rounded-2xl border border-warm-200 bg-white shadow-lg max-w-7xl mx-auto">
+        <div className="h-[65vh] md:h-[75vh]">
           <WaterTowersMap
-            towers={towersEnriched}
-            selectedTowerId={selectedTower?.id ?? null}
-            selectedSiteId={activeSiteId}
-            onSelectTower={handleSelectTower}
-            showBoundary={layerState.boundary}
-            showBubbles={layerState.bubbles}
-            showSatellite={layerState.satellite}
-            showNdvi={layerState.ndvi}
-            showRainfall={layerState.rainfall}
-            nurseries={
-              selectedTower
-                ? (nurseries ?? []).filter((n) => n.water_tower_id === selectedTower.id || n.water_tower_id === selectedTower.name)
-                : []
-            }
+            towers={towers}
+            loading={isLoading}
+            error={error}
+            selectedTowerId={selectedTowerId}
+            onSelectTower={(id) => setSelectedTowerId(id)}
           />
-        )}
-      </div>
+        </div>
+      </section>
 
-      <div className="absolute left-4 top-4 z-[1200] flex flex-col gap-2">
-        <button
-          onClick={() => setPanelOpen((p) => !p)}
-          className="inline-flex items-center self-start rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-emerald-100 shadow-lg backdrop-blur transition hover:bg-slate-800"
-        >
-          {panelOpen ? "Hide Panel" : "Show Panel"}
-        </button>
+      <section className="grid gap-6 md:grid-cols-3 max-w-7xl mx-auto">
+        <StatCard label="Water towers" value={towers.length} description="Mapped catchments across Kenya" />
+        <StatCard label="Active nurseries" value={nurseries?.length ?? 0} description="Field propagation sites" />
+        <StatCard
+          label="Species (selected)"
+          value={selectedTower ? biodiversity.length : "-"}
+          description="Observations for the highlighted tower"
+        />
+      </section>
 
-        {panelOpen && (
-          <div className="relative w-[480px] max-w-[94vw] max-h-[88vh] overflow-y-auto rounded-3xl">
-            <div className="relative h-full overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/95 shadow-2xl backdrop-blur">
-              {isLoading ? (
-                <div className="p-6">
-                  <DataState state="loading" />
-                </div>
-              ) : isError ? (
-                <div className="p-6">
-                  <DataState state="error" message={(error as Error).message} />
-                </div>
-              ) : (
-                <TowerInfoPanel
-                  tower={selectedTower}
-                  activeTab={activeLeftTab}
-                  onTabChange={setActiveLeftTab}
-                  selectedSiteId={activeSiteId}
-                  onSelectSite={setSelectedSiteId}
-                  onOpenSearch={() => setActiveOverlay(activeOverlay === "search" ? null : "search")}
-                  onOpenLayers={() => setActiveOverlay(activeOverlay === "layers" ? null : "layers")}
-                  onOpenAnalytics={() => setActiveOverlay(activeOverlay === "analytics" ? null : "analytics")}
-                  onOpenAlerts={() => setActiveOverlay(activeOverlay === "alerts" ? null : "alerts")}
-                  towers={towersEnriched}
-                />
-              )}
-
-              {activeOverlay === "search" && (
-                <TowerSearchPanel
-                  towers={towersEnriched}
-                  selectedTowerId={selectedTower?.id ?? null}
-                  onClose={() => setActiveOverlay(null)}
-                  onSelect={(id) => {
-                    handleSelectTower(id);
-                    setActiveOverlay(null);
-                  }}
-                />
-              )}
-
-              {activeOverlay === "layers" && (
-                <LayersPanel
-                  layerState={layerState}
-                  onToggle={(key) =>
-                    setLayerState((prev) => ({
-                      ...prev,
-                      [key]: !prev[key as keyof typeof prev],
-                    }))
-                  }
-                  onClose={() => setActiveOverlay(null)}
-                />
-              )}
-
-              {activeOverlay === "analytics" && (
-                <TowerAnalyticsPanel
-                  onClose={() => setActiveOverlay(null)}
-                  ndviData={[
-                    { month: "Jan", ndvi: 0.45 },
-                    { month: "Feb", ndvi: 0.52 },
-                    { month: "Mar", ndvi: 0.59 },
-                    { month: "Apr", ndvi: 0.62 },
-                    { month: "May", ndvi: 0.66 },
-                    { month: "Jun", ndvi: 0.61 },
-                  ]}
-                  climateCards={[
-                    { label: "Rainfall (mm)", value: "142", desc: "Last 30 days" },
-                    { label: "Temp (°C)", value: "18.5", desc: "Avg last 30 days" },
-                    { label: "Solar (MJ/m2)", value: "17.2", desc: "NASA POWER" },
-                  ]}
-                />
-              )}
-
-              {activeOverlay === "alerts" && (
-                <TowerAlertsPanel
-                  onClose={() => setActiveOverlay(null)}
-                  whatsappNumber={whatsappNumber}
-                  onNumberChange={setWhatsappNumber}
-                  alertIntervalMinutes={alertIntervalMinutes}
-                  onIntervalChange={setAlertIntervalMinutes}
-                  alerts={[
-                    {
-                      id: "a1",
-                      title: "Illegal logging detected",
-                      tower: selectedTower?.name ?? "Unknown tower",
-                      severity: "High",
-                      time: "5 mins ago",
-                      detail: "Rapid canopy loss detected on NW perimeter.",
-                    },
-                    {
-                      id: "a2",
-                      title: "NDVI drop",
-                      tower: selectedTower?.name ?? "Unknown tower",
-                      severity: "Medium",
-                      time: "1 day ago",
-                      detail: "Vegetation index dropped 12% vs last week.",
-                    },
-                  ]}
-                />
-              )}
-            </div>
+      <section className="grid gap-6 lg:grid-cols-2 max-w-7xl mx-auto">
+        <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-charcoal-900">Featured towers</h2>
+            <span className="text-xs text-charcoal-500 font-medium">Top 3</span>
           </div>
-        )}
-      </div>
+          <div className="space-y-3">
+            {towerHighlights.map((tower) => (
+              <div
+                key={tower.id}
+                className="rounded-2xl border border-warm-200 bg-warm-50/50 p-4 hover:shadow-md transition-shadow"
+              >
+                <p className="font-semibold text-charcoal-900">{tower.name}</p>
+                <p className="text-xs text-charcoal-600 mt-1">
+                  Counties: {(Array.isArray(tower.counties) ? tower.counties : [tower.counties])
+                    .flat()
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+                <button
+                  type="button"
+                  className="mt-3 text-xs font-semibold text-soft-green-600 hover:text-soft-green-700 underline"
+                  onClick={() => setSelectedTowerId(tower.id)}
+                >
+                  View tower story
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-warm-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-charcoal-900">Nursery network</h2>
+            <span className="text-xs text-charcoal-500 font-medium">Connected</span>
+          </div>
+          <div className="space-y-3">
+            {nurseryHighlights.map((nursery) => (
+              <div
+                key={nursery.id}
+                className="rounded-2xl border border-warm-200 bg-warm-50/50 p-4 hover:shadow-md transition-shadow"
+              >
+                <p className="font-semibold text-charcoal-900">{nursery.name}</p>
+                <p className="text-xs text-charcoal-600 mt-1">
+                  Species: {nursery.species_scientific ?? "Unknown"} / {nursery.species_local ?? "Local pending"}
+                </p>
+                <p className="text-[11px] text-charcoal-500 mt-1">
+                  Tower link: {nursery.water_tower_id ?? "Unassigned"}
+                </p>
+              </div>
+            ))}
+            {!nurseryHighlights.length && (
+              <p className="text-sm text-charcoal-500">No nurseries seeded yet.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <TowerDrawer
+        tower={selectedTower}
+        open={Boolean(selectedTower)}
+        onClose={() => setSelectedTowerId(null)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        biodiversity={biodiversity}
+        nurseries={associatedNurseries}
+        biodiversityError={isBiodiversityError ? biodiversityError : undefined}
+        areaHa={selectedAreaHa}
+      />
+      {selectedTower && (
+        <div
+          className="fixed inset-0 z-20 bg-charcoal-900/10 md:hidden"
+          onClick={() => setSelectedTowerId(null)}
+        />
+      )}
     </div>
   );
 };

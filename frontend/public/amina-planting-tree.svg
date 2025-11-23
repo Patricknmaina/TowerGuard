@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" role="img" aria-labelledby="title desc">
+  <title id="title">Amina planting tree placeholder</title>
+  <desc id="desc">Abstract banner illustration representing a person planting a tree</desc>
+  <defs>
+    <linearGradient id="skyBanner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f7fbf8"/>
+      <stop offset="100%" stop-color="#eaf4ee"/>
+    </linearGradient>
+    <linearGradient id="groundBanner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d8ecdf"/>
+      <stop offset="100%" stop-color="#c5e3d2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="700" fill="url(#skyBanner)"/>
+  <rect y="430" width="1600" height="270" fill="url(#groundBanner)"/>
+  <g opacity="0.4" fill="#b8d9c5">
+    <circle cx="260" cy="430" r="180"/>
+    <circle cx="560" cy="420" r="200"/>
+    <circle cx="940" cy="440" r="220"/>
+    <circle cx="1280" cy="420" r="200"/>
+  </g>
+  <g>
+    <path d="M780 360c-10 50-36 160-36 210 0 10 8 18 18 18h64c10 0 18-8 18-18 0-48-26-160-36-210" fill="#6fb585" opacity="0.85"/>
+    <path d="M760 360c0-56 46-102 102-102s102 46 102 102-46 102-102 102-102-46-102-102z" fill="#8fceb0" opacity="0.9"/>
+    <circle cx="950" cy="320" r="90" fill="#7bbd9c" opacity="0.75"/>
+  </g>
+  <g opacity="0.5" stroke="#5c6f63" stroke-width="10" stroke-linecap="round">
+    <path d="M430 410c12-50 70-90 120-70" />
+    <path d="M1220 400c-14-60-90-110-150-80" />
+  </g>
+  <text x="120" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="64" fill="#335742" opacity="0.7">
+    Amina plants hope in Kenya's water towers
+  </text>
+</svg>

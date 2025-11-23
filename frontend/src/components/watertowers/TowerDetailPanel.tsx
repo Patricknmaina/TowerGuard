@@ -50,7 +50,11 @@ const TowerDetailPanel = ({ tower }: TowerDetailPanelProps) => {
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">Catchment Area</p>
-          <p className="text-lg font-semibold text-brand-gray">{tower.keyMetrics?.catchmentAreaHa ?? 0} ha</p>
+          <p className="text-lg font-semibold text-brand-gray">
+            {tower.keyMetrics?.catchmentAreaHa != null
+              ? `${(tower.keyMetrics.catchmentAreaHa * 0.01).toFixed(2)} km²`
+              : "N/A"}
+          </p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">Population Served</p>
