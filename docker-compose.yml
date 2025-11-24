@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    volumes:
+      - ./backend:/app/backend:cached
+      - ./backend/credentials:/app/backend/credentials:ro
+    environment:
+      - EE_SERVICE_ACCOUNT_EMAIL=gee-ndvi-sa@tower-guard-479011.iam.gserviceaccount.com
+      - EE_SERVICE_ACCOUNT_JSON=/app/backend/credentials/ee_service_account.json
+      - ENABLE_DRIVE_UPLOAD=false
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

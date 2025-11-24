@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Mau Forest after restoration placeholder</title>
+  <desc id="desc">Soft abstract illustration of a lush restored forest</desc>
+  <defs>
+    <linearGradient id="skyAfter" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f3faf5"/>
+      <stop offset="100%" stop-color="#e4f3ea"/>
+    </linearGradient>
+    <linearGradient id="canopy" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#b6e4c1"/>
+      <stop offset="100%" stop-color="#8fcf9f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#skyAfter)"/>
+  <rect y="520" width="1600" height="380" fill="#d9f0df"/>
+  <g fill="url(#canopy)" opacity="0.85">
+    <circle cx="200" cy="520" r="210"/>
+    <circle cx="460" cy="500" r="230"/>
+    <circle cx="760" cy="540" r="250"/>
+    <circle cx="1080" cy="500" r="240"/>
+    <circle cx="1380" cy="540" r="220"/>
+  </g>
+  <g fill="#6fb585" opacity="0.65">
+    <ellipse cx="220" cy="700" rx="140" ry="60"/>
+    <ellipse cx="560" cy="720" rx="150" ry="70"/>
+    <ellipse cx="900" cy="700" rx="160" ry="65"/>
+    <ellipse cx="1240" cy="720" rx="150" ry="70"/>
+  </g>
+  <g stroke="#4f8b62" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.8">
+    <path d="M220 520c-6 160 20 250 40 270"/>
+    <path d="M460 500c-4 170 22 260 44 280"/>
+    <path d="M760 540c-2 175 26 260 50 280"/>
+    <path d="M1080 500c-4 170 22 260 44 280"/>
+    <path d="M1380 540c-6 165 20 255 42 275"/>
+  </g>
+  <text x="120" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="72" fill="#2f533a" opacity="0.6">
+    Mau Forest — after restoration
+  </text>
+</svg>

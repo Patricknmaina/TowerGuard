@@ -45,7 +45,11 @@ const TowerList = ({ towers, selectedTowerId, onSelect }: TowerListProps) => {
                 </span>
               </td>
               <td className="px-4 py-3 text-slate-700">{tower.keyMetrics?.forestCoverPct ?? "—"}</td>
-              <td className="px-4 py-3 text-slate-700">{tower.keyMetrics?.catchmentAreaHa ?? "—"}</td>
+              <td className="px-4 py-3 text-slate-700">
+                {tower.keyMetrics?.catchmentAreaHa != null
+                  ? `${(tower.keyMetrics.catchmentAreaHa * 0.01).toFixed(2)} km²`
+                  : "—"}
+              </td>
             </tr>
           ))}
         </tbody>

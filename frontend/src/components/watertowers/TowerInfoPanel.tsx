@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import type { TowerSite, TowerView } from "../../pages/DashboardPage";
+import DataState from "../shared/DataState";
+import { useBiodiversityByTower } from "../../hooks/useBiodiversityByTower";
 import { protectionBadgeColor, riskBadgeColor } from "./towerStyles";
+import { getTowerAreaHa } from "../../utils/towerAreaOverrides";
 
 interface TowerInfoPanelProps {
   tower?: TowerView;
@@ -21,6 +24,17 @@ const tabs: { id: TowerInfoPanelProps["activeTab"]; label: string }[] = [
   { id: "hydrology", label: "Hydrology" },
   { id: "biodiversity", label: "Biodiversity" },
 ];
+
+const formatErrorMessage = (error?: unknown) => {
+  if (!error) return undefined;
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown error";
+  }
+};
 
 const TowerInfoPanel = ({
   tower,
@@ -43,6 +57,39 @@ const TowerInfoPanel = ({
   if (!tower) {
     return <div className="p-6 text-sm text-slate-200">Select a water tower to view details.</div>;
   }
+
+  const metadata = tower.metadata as Record<string, unknown> | undefined;
+  const {
+    data: biodiversity,
+    isLoading: isBiodiversityLoading,
+    isError: isBiodiversityError,
+    error: biodiversityError,
+  } = useBiodiversityByTower(tower.id);
+
+  const resolvedAreaHa = getTowerAreaHa(tower.id, tower.area_ha ?? null);
+
+  const counties = tower.counties ?? [];
+  const majorRivers = Array.isArray(metadata?.major_rivers as unknown)
+    ? (metadata?.major_rivers as string[])
+    : [];
+  const elevation = typeof (metadata?.elevation_m as number) === "number" ? (metadata?.elevation_m as number) : undefined;
+  const hydrologyCards = [
+    {
+      label: "Elevation",
+      value: elevation ? `${elevation.toFixed(0)} m` : "Data pending",
+      desc: "Approximate elevation from GeoJSON",
+    },
+    {
+      label: "Catchment Area",
+      value: resolvedAreaHa ? `${(resolvedAreaHa * 0.01).toLocaleString()} km²` : "—",
+      desc: "Gazetted footprint",
+    },
+    {
+      label: "Major Rivers",
+      value: majorRivers.length ? majorRivers.join(", ") : "Awaiting data",
+      desc: "Primary drainage routes",
+    },
+  ];
 
   return (
     <div className="flex h-full flex-col">
@@ -74,7 +121,7 @@ const TowerInfoPanel = ({
           {tower.imageUrl ? (
             <img src={tower.imageUrl} alt={tower.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-slate-200">Hero image</div>
+            <div className="flex h-full items-center justify-center text-sm text-slate-200">Tower hero image</div>
           )}
         </div>
       </div>
@@ -85,8 +132,10 @@ const TowerInfoPanel = ({
             <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">Water Tower</p>
             <h2 className="text-2xl font-semibold text-white">{tower.name}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className="rounded-full bg-slate-800 px-3 py-1 text-emerald-100">{tower.county ?? "Kenya"}</span>
-              <span className="rounded-full bg-slate-800 px-3 py-1 text-emerald-100">{tower.areaHa ?? 0} ha</span>
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-emerald-100">{counties[0] ?? "Kenya"}</span>
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-emerald-100">
+                {resolvedAreaHa ? `${resolvedAreaHa.toLocaleString()} ha` : "Area unknown"}
+              </span>
               <span className={`rounded-full px-3 py-1 ${protectionBadgeColor(tower.protectionStatus)}`}>
                 {tower.protectionStatus ?? "Gazetted"}
               </span>
@@ -130,81 +179,119 @@ const TowerInfoPanel = ({
 
       <div className="mt-auto flex-1 overflow-y-auto px-5 pb-6 text-sm text-slate-100">
         {activeTab === "tower" && (
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-white">Description</h3>
-            <p className="leading-relaxed text-slate-200">{tower.description ?? "No description provided."}</p>
-            <h4 className="pt-2 text-sm font-semibold text-white">Objective</h4>
-            <div className="flex flex-wrap gap-2">
-              {(tower.objectives ?? ["Water Regulation", "Biodiversity", "Hydropower"]).map((obj) => (
-                <span key={obj} className="rounded-full bg-emerald-100/20 px-3 py-1 text-emerald-100">
-                  {obj}
-                </span>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-md">
+              <h3 className="text-base font-semibold text-white">Description</h3>
+              <p className="mt-2 leading-relaxed text-slate-200">
+                {tower.description ?? "This tower anchors a priority ecosystem network focused on conservation."}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {hydrologyCards.map((card) => (
+                <div
+                  key={card.label}
+                  className="rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 to-slate-800/10 p-4 shadow-sm"
+                >
+                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">{card.label}</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-900">{card.value}</p>
+                  <p className="text-xs text-slate-500">{card.desc}</p>
+                </div>
               ))}
             </div>
           </div>
         )}
 
         {activeTab === "communities" && (
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-white">Communities</h3>
-            <table className="min-w-full divide-y divide-slate-800 text-sm">
-              <thead className="text-emerald-100">
-                <tr>
-                  <th className="py-2 text-left">Community</th>
-                  <th className="py-2 text-left">Population Served</th>
-                  <th className="py-2 text-left">Primary Use</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-100">
-                {[{ name: "Aberdare North", pop: 180000, use: "Domestic & Irrigation" }, { name: "Kericho South", pop: 220000, use: "Tea estates & domestic" }, { name: "Tharaka Ridge", pop: 140000, use: "Hydropower & domestic" }].map((row) => (
-                  <tr key={row.name}>
-                    <td className="py-2">{row.name}</td>
-                    <td className="py-2">{row.pop.toLocaleString()}</td>
-                    <td className="py-2">{row.use}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-slate-200">
+              <h3 className="text-base font-semibold text-white">Counties Served</h3>
+              {counties.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {counties.map((county) => (
+                    <span key={county} className="rounded-2xl border border-slate-700 bg-slate-800/70 px-3 py-1 text-xs font-semibold">
+                      {county}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-slate-400">County coverage data not yet available.</p>
+              )}
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-slate-200">
+              <h3 className="text-base font-semibold text-white">Stakeholder Brief</h3>
+              <p className="mt-2 text-xs text-slate-400">
+                Communities near this tower rely on the upland catchment for agriculture, domestic, and hydropower
+                supply.
+              </p>
+            </div>
           </div>
         )}
 
         {activeTab === "hydrology" && (
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-white">Hydrology</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-slate-800 px-3 py-2">
-                <p className="text-xs uppercase tracking-wide text-emerald-200">Baseflow Index</p>
-                <p className="text-lg font-semibold text-white">0.72</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 px-3 py-2">
-                <p className="text-xs uppercase tracking-wide text-emerald-200">Springs</p>
-                <p className="text-lg font-semibold text-white">36</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 px-3 py-2">
-                <p className="text-xs uppercase tracking-wide text-emerald-200">Main Rivers</p>
-                <p className="text-lg font-semibold text-white">4</p>
-              </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {hydrologyCards.map((card) => (
+                <div
+                  key={card.label}
+                  className="rounded-2xl border border-slate-800 bg-gradient-to-br from-emerald-50 to-slate-50 p-4 shadow-sm text-slate-900"
+                >
+                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">{card.label}</p>
+                  <p className="mt-2 text-2xl font-semibold">{card.value}</p>
+                  <p className="text-xs text-slate-500">{card.desc}</p>
+                </div>
+              ))}
             </div>
-            <div className="rounded-lg border border-dashed border-slate-700 bg-slate-800/70 p-4 text-center text-slate-300">
-              {/* TODO: Replace with real hydrology time series (e.g., flow or rainfall). */}
-              Hydrology chart placeholder
+            <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/70 p-4 text-slate-300">
+              Hydrology charts are synced to backend datasets when available. Use the analytics overlay for time
+              series and rainfall/flood monitoring.
             </div>
           </div>
         )}
 
         {activeTab === "biodiversity" && (
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-white">Biodiversity</h3>
-            <p className="text-slate-200">
-              Key ecosystems include montane forest, grassland, and riparian corridors. {/* TODO: Replace with real ecosystem/species data. */}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {["Montane forest", "Grassland", "Riparian", "Bird habitat"].map((tag) => (
-                <span key={tag} className="rounded-full bg-emerald-100/20 px-3 py-1 text-emerald-100">
-                  {tag}
-                </span>
-              ))}
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-base font-semibold text-white">Species observations</h3>
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-700">
+                {biodiversity?.length ?? 0} species
+              </span>
             </div>
+            {isBiodiversityLoading ? (
+              <DataState state="loading" />
+            ) : isBiodiversityError ? (
+              <DataState state="error" message={formatErrorMessage(biodiversityError)} />
+            ) : biodiversity?.length ? (
+              <div className="space-y-3">
+                {biodiversity.map((species) => (
+                  <div
+                    key={species.scientific_name}
+                    className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h4 className="text-base font-semibold text-white">{species.scientific_name}</h4>
+                        <p className="text-xs text-slate-400">
+                          {species.local_name ?? "Local name unknown"} · {species.english_common_name ?? "Common name pending"}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-800">
+                        {species.records.length} observations
+                      </span>
+                    </div>
+                    <ul className="mt-3 space-y-1 text-[11px] text-slate-300">
+                      {species.records.slice(0, 3).map((record) => (
+                        <li key={record.id}>
+                          {record.observed_at ? new Date(record.observed_at).toLocaleDateString() : "Unknown date"} ·{" "}
+                          {record.source ?? "Local field team"}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <DataState state="empty" message="No biodiversity observations for this tower yet." />
+            )}
           </div>
         )}
       </div>
