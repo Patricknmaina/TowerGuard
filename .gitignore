@@ -16,3 +16,10 @@ backend/logs/
 
 # data files
 DataWrangler/
+
+# mongodb files
+logs/
+mongodb_data/
+
+# google API credentials
+backend/credentials/
